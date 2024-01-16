@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans  xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+
+  <tx:annotation-driven transaction-manager="transactionManager" />
+	<context:component-scan base-package="py.com.fermar.test.mock">
+    <!-- <context:component-scan base-package="py.com.fermar.commons.config, py.com.fermar.commons.utils, py.com.fermar.commons.dao,py.com.fermar.commons.domain ,py.com.fermar.commons.constants,py.com.fermar.commons.service, py.com.fermar.scheduler.config, py.com.fermar.services, py.com.fermar.util"> -->
+      <context:exclude-filter type="regex" expression="py.com.fermar.commons.service.impl.SchemaValidatorServiceImpl" />
+   </context:component-scan>
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>org.sqlite.JDBC</value>
+		</property>
+		<property name="url">		
+			<value>jdbc:sqlite:/home/fermin/SQLite/db/fmconnect.db</value>
+			<!-- value>jdbc:sqlite:C:\Users\Fermin\wildfly-26.1.3.Final\SQLite\db\fmconnect.db</value-->
+		</property>
+	</bean>
+	
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource">
+		</property>
+		<property name="packagesToScan">
+			<list>
+        <value>py.com.fermar.commons.domain</value>
+        <value>py.com.fermar.eventos.domain</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.show_sql">true</prop>
+				<!--prop key="hibernate.current_session_context_class">thread</prop-->
+        		<prop key="hibernate.dialect">org.hibernate.dialect.SQLiteDialect</prop>
+        		<prop key="hibernate.connection.characterEncoding">utf8</prop>
+        		<prop key="hibernate.connection.CharSet">utf8</prop>
+        		<prop key="hibernate.connection.useUnicode">true</prop>
+       			 
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>       			 
+				<prop key="hibernate.cache.use_query_cache">true</prop>			 
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory">
+		</property>
+	</bean>
+	
+	<bean id="StringsUtils" class="py.com.fermar.commons.utils.StringsUtils">
+	</bean>
+	
+</beans>
