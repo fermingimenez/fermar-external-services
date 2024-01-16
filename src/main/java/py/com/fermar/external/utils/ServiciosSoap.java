@@ -97,10 +97,6 @@ public class ServiciosSoap {
         SOAPElement dCDC = rEnviConsDe.addChildElement("dRUCCons", nameSpace);
         dCDC.addTextNode(ruc);
 
-        //System.out.println("Mensaje SOAP:");
-        //soapRequest.writeTo(System.out);
-        //System.out.println();
-
         return soapRequest;
     }
 }

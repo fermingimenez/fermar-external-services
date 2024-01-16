@@ -40,8 +40,6 @@ public class SifenService {
             LOGGER.error("Error en metodo sendXmlSoap", e);
             throw new SOAPException(e);
         }
-
-        //xmlSoapEvent.writeTo(System.out);
         
         //Crear la conexion SOAP
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
@@ -56,9 +54,7 @@ public class SifenService {
             }
             
             //Imprime la respuesta SOAP
-            System.out.println("Respuesta SOAP:");
-            sifenResponse.writeTo(System.out);
-            System.out.println();
+            //sifenResponse.writeTo(System.out);
             
             return sifenResponse;
             
