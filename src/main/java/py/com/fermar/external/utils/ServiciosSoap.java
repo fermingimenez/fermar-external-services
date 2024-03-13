@@ -1,15 +1,12 @@
 package py.com.fermar.external.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.xml.soap.*;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
 
@@ -18,30 +15,19 @@ public class ServiciosSoap {
 	
 	private static final String TRANSPORT_LAYER_SECURITY = "TLSv1.2";
 	private static final String FERMAR_CONSULTA_ID = "17082017";
-
-	@Autowired
-	private String certificateFile;
 	
-	@Autowired
-	private String certificatePassword;
-	
-
-    public void doTrustToCertificates() throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, UnrecoverableKeyException, KeyManagementException {
-
-        InputStream inputStream = null;
+    
+    public void doTrustToCertificates(
+    		KeyStore keyStore,
+    		String certificatePassword) 
+    				throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, UnrecoverableKeyException, KeyManagementException {
         
         try {
-            // Set keystore that contains private key
-	        String keystoreURL = certificateFile;
-	        inputStream = new FileInputStream(keystoreURL);
-
-	        String pKeyPassword = certificatePassword;
 
 	        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
-	        KeyStore keyStore = KeyStore.getInstance("PKCS12");
-	        
-	        keyStore.load(inputStream, pKeyPassword.toCharArray());
-	        keyManagerFactory.init(keyStore, pKeyPassword.toCharArray());
+	        keyManagerFactory.init(
+	        		keyStore, 
+	        		certificatePassword.toCharArray());
 	
 	        // Set ssl context with private key and truststore details
 	        SSLContext sc = SSLContext.getInstance(TRANSPORT_LAYER_SECURITY);
@@ -54,11 +40,7 @@ public class ServiciosSoap {
         } catch (Exception e) {
             throw new IOException("Error doTrustToCertificates");
             
-        } finally {
-            if (inputStream!=null) {
-                inputStream.close();
-            }
-        }
+        } 
         
     }
 

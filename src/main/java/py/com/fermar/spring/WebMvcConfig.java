@@ -15,6 +15,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan(basePackages = { 
 		"py.com.fermar.commons.config",
 		
+		"py.com.fermar.commons.connect",		
+		"py.com.fermar.emitters.repository",
+		"py.com.fermar.emitters.services",
+		
 		"py.com.fermar.external.config",
 		"py.com.fermar.external.service",
 		"py.com.fermar.external.utils",

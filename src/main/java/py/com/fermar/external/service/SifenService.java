@@ -1,6 +1,8 @@
 package py.com.fermar.external.service;
 
 
+import py.com.fermar.emitters.repository.Emisor;
+import py.com.fermar.emitters.services.EmittersService;
 import py.com.fermar.external.constants.ServiceConstants;
 import py.com.fermar.external.utils.RucDTO;
 import py.com.fermar.external.utils.ServiciosSoap;
@@ -11,6 +13,10 @@ import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +32,47 @@ public class SifenService {
     private ServiciosSoap serviciosSoap;
     
 	@Autowired
-	private String sifenUrlRecibeDe;
+	private String sifenUrl;
+
+	@Autowired
+	private boolean isProduction;
+	
+	private Emisor emisor;
+	
+	@Autowired
+	EmittersService emittersService;
 	
 	private static final String  WS_CONSULTA_RUC = "consultas/consulta-ruc.wsdl";
 
-    private SOAPMessage sendXmlSoap(SOAPMessage xmlSoapEvent, String sifenUrl) 
+	
+	private String sifenUrlRecibeDe() {
+		Map<String, String> map = getStringAsMap(sifenUrl);
+		
+		String url = map.get("sifenUrlRecibeDeTest");
+		if (isProduction) {
+			url = map.get("sifenUrlRecibeDe");
+		}
+		
+		return url;
+	}
+
+	private Map<String, String> getStringAsMap(String mapAsString) {
+		return Arrays.stream(mapAsString.split(","))
+			      .map(entry -> entry.split("="))
+			      .collect(Collectors.toMap(entry -> entry[0], entry -> entry[1]));
+	}
+	
+	
+    private SOAPMessage sendXmlSoap(
+    		SOAPMessage xmlSoapEvent, 
+    		String sifenUrl) 
     		throws SOAPException, IOException {
         
         try {
-            serviciosSoap.doTrustToCertificates();
+    		
+            serviciosSoap.doTrustToCertificates(
+					emisor.getKeyStore(),
+					emisor.getCertificatePassword());
             
         } catch (Exception e) {
             LOGGER.error("Error en metodo sendXmlSoap", e);
@@ -70,14 +108,15 @@ public class SifenService {
         }
     }
     
-    public SoapResponse<RucDTO> getRUCFromSifen(String ruc) {
+    public SoapResponse<RucDTO> getRUCFromSifen(
+    		Emisor emisor, String ruc) {
     	
         SoapResponse<RucDTO> response = new SoapResponse<>();
         SOAPMessage sifenResponse = null;
         SOAPMessage xmlSoapConsultaDE = null;
 
         try {
-
+        	this.emisor = emisor;
             xmlSoapConsultaDE = 
             		serviciosSoap.createSoapPart4ConsRUC(ruc);
             
@@ -89,8 +128,9 @@ public class SifenService {
 
         try {
         	
-        	String serviceURI = sifenUrlRecibeDe + WS_CONSULTA_RUC;
-            sifenResponse = sendXmlSoap(xmlSoapConsultaDE, serviceURI);
+        	String serviceURI = sifenUrlRecibeDe() + WS_CONSULTA_RUC;
+            sifenResponse = 
+            		sendXmlSoap(xmlSoapConsultaDE, serviceURI);
             
         } catch (Exception e) {
             response.setdCodRes(HttpStatus.CONFLICT.value());
