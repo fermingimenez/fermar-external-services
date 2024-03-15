@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import py.com.fermar.commons.exception.AttributeNotFoundException;
+import py.com.fermar.commons.exception.FerMarRuntimeException;
 import py.com.fermar.commons.exception.SIFENException;
 import py.com.fermar.external.constants.ServiceConstants;
 import py.com.fermar.external.service.ExternalService;
@@ -72,7 +73,7 @@ public class ConsultasController {
 					mapDTEResponse, 
 					HttpStatus.OK);
 
-		} catch (SIFENException | AttributeNotFoundException e) {
+		} catch (SIFENException | AttributeNotFoundException | FerMarRuntimeException e) {
 			mapDTEResponse.put(MENSAJE, e.getMessage());
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(mapDTEResponse);
 			
